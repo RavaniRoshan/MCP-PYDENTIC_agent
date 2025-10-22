@@ -9,6 +9,16 @@ import {
   XCircleIcon
 } from '@heroicons/react/24/outline';
 
+/**
+ * @interface ScheduledTask
+ * @description Represents a task that has been scheduled for automation.
+ * @property {string} id - The unique identifier for the task.
+ * @property {string} title - The title of the task.
+ * @property {string} description - A description of the task.
+ * @property {object} schedule - The schedule for the task.
+ * @property {string} createdAt - The timestamp of when the task was created.
+ * @property {string} status - The current status of the task.
+ */
 interface ScheduledTask {
   id: string;
   title: string;
@@ -24,6 +34,11 @@ interface ScheduledTask {
   status: 'scheduled' | 'running' | 'completed' | 'failed' | 'cancelled';
 }
 
+/**
+ * @component TaskScheduler
+ * @description A component that allows users to schedule and manage automated tasks.
+ * @returns {React.FC} The task scheduler component.
+ */
 const TaskScheduler: React.FC = () => {
   const [tasks, setTasks] = useState<ScheduledTask[]>([
     {
@@ -57,6 +72,10 @@ const TaskScheduler: React.FC = () => {
   
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+  /**
+   * @function handleAddTask
+   * @description Handles the addition of a new task.
+   */
   const handleAddTask = () => {
     if (!newTask.title || !newTask.description) return;
     
@@ -80,6 +99,10 @@ const TaskScheduler: React.FC = () => {
     resetForm();
   };
 
+  /**
+   * @function resetForm
+   * @description Resets the new task form.
+   */
   const resetForm = () => {
     setNewTask({
       title: '',
@@ -92,6 +115,11 @@ const TaskScheduler: React.FC = () => {
     });
   };
 
+  /**
+   * @function handleDayToggle
+   * @description Toggles the selection of a day of the week.
+   * @param {string} day - The day to toggle.
+   */
   const handleDayToggle = (day: string) => {
     setNewTask(prev => ({
       ...prev,
@@ -101,10 +129,21 @@ const TaskScheduler: React.FC = () => {
     }));
   };
 
+  /**
+   * @function deleteTask
+   * @description Deletes a task.
+   * @param {string} id - The ID of the task to delete.
+   */
   const deleteTask = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
 
+  /**
+   * @function getStatusColor
+   * @description Returns the color for a given status.
+   * @param {string} status - The status to get the color for.
+   * @returns {string} The color class.
+   */
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
@@ -120,6 +159,12 @@ const TaskScheduler: React.FC = () => {
     }
   };
 
+  /**
+   * @function getStatusIcon
+   * @description Returns the icon for a given status.
+   * @param {string} status - The status to get the icon for.
+   * @returns {React.ReactNode} The icon.
+   */
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':

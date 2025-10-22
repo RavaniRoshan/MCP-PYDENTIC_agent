@@ -1,13 +1,28 @@
 // src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
+/**
+ * @interface User
+ * @description Represents a user.
+ * @property {string} id - The unique identifier for the user.
+ * @property {string} name - The name of the user.
+ * @property {string} email - The email of the user.
+ */
 interface User {
   id: string;
   name: string;
   email: string;
-  // Add other user properties as needed
 }
 
+/**
+ * @interface AuthContextType
+ * @description The context for authentication.
+ * @property {User | null} user - The current user.
+ * @property {(email: string, password: string) => Promise<boolean>} login - A function to log in a user.
+ * @property {() => void} logout - A function to log out a user.
+ * @property {(name: string, email: string, password: string) => Promise<boolean>} register - A function to register a new user.
+ * @property {boolean} isAuthenticated - A flag indicating whether the user is authenticated.
+ */
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
@@ -18,6 +33,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * @provider AuthProvider
+ * @description A provider for the authentication context.
+ * @param {{ children: ReactNode }} props - The props for the component.
+ * @returns {React.FC} The authentication provider.
+ */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -98,6 +119,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
+/**
+ * @hook useAuth
+ * @description A hook to use the authentication context.
+ * @returns {AuthContextType} The authentication context.
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

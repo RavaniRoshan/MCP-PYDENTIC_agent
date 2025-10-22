@@ -3,6 +3,17 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import io, { Socket } from 'socket.io-client';
 import { TaskResponse } from '../types';
 
+/**
+ * @interface TaskContextType
+ * @description The context for managing tasks.
+ * @property {TaskResponse[]} tasks - A list of all tasks.
+ * @property {TaskResponse | null} activeTask - The currently active task.
+ * @property {(task: TaskResponse) => void} addTask - A function to add a new task.
+ * @property {(task: TaskResponse) => void} updateTask - A function to update an existing task.
+ * @property {(task: TaskResponse | null) => void} setActiveTask - A function to set the active task.
+ * @property {() => void} connectWebSocket - A function to connect to the WebSocket.
+ * @property {() => void} disconnectWebSocket - A function to disconnect from the WebSocket.
+ */
 interface TaskContextType {
   tasks: TaskResponse[];
   activeTask: TaskResponse | null;
@@ -15,6 +26,12 @@ interface TaskContextType {
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
+/**
+ * @provider TaskProvider
+ * @description A provider for the task context.
+ * @param {{ children: ReactNode }} props - The props for the component.
+ * @returns {React.FC} The task provider.
+ */
 export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [tasks, setTasks] = useState<TaskResponse[]>([]);
   const [activeTask, setActiveTask] = useState<TaskResponse | null>(null);
@@ -81,6 +98,11 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
+/**
+ * @hook useTasks
+ * @description A hook to use the task context.
+ * @returns {TaskContextType} The task context.
+ */
 export const useTasks = () => {
   const context = useContext(TaskContext);
   if (context === undefined) {

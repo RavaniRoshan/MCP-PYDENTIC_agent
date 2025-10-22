@@ -11,6 +11,11 @@ import {
   FunnelIcon
 } from '@heroicons/react/24/outline';
 
+/**
+ * @component TaskHistory
+ * @description A component that displays a history of automation tasks, with filtering and search functionality.
+ * @returns {React.FC} The task history component.
+ */
 const TaskHistory: React.FC = () => {
   const { tasks } = useTasks();
   const [statusFilter, setStatusFilter] = useState<string>('all');

@@ -18,7 +18,13 @@ from core.safety import SafetyValidator, SafetyConfirmation
 
 class ActionExecutionResult:
     """
-    Result of executing an action or plan
+    Represents the result of executing an action or a plan.
+
+    Attributes:
+        success (bool): Indicates whether the execution was successful.
+        action_results (List[ActionResult]): A list of results for each executed action.
+        error (str, optional): A description of the error if the execution failed.
+        completed_at (datetime): The timestamp of when the execution was completed.
     """
     def __init__(self, success: bool, action_results: List[ActionResult] = None, error: str = None):
         self.success = success
@@ -29,11 +35,19 @@ class ActionExecutionResult:
 
 class ActionExecutionFramework:
     """
-    Framework for executing browser automation actions
-    Integrates vision-language processing, NLP, state observation, and safety checks
+    A framework for executing browser automation actions.
+
+    This class integrates vision-language processing, NLP, state observation, and safety checks
+    to provide a comprehensive solution for browser automation.
     """
     
     def __init__(self, browser_controller: BrowserControllerInterface):
+        """
+        Initializes the ActionExecutionFramework.
+
+        Args:
+            browser_controller (BrowserControllerInterface): An instance of a browser controller.
+        """
         self.browser_controller = browser_controller
         self.vision_language_processor = VisionLanguageProcessor()
         self.nlp_processor = NaturalLanguageProcessor()
@@ -46,7 +60,13 @@ class ActionExecutionFramework:
     
     async def process_user_request(self, user_prompt: UserPrompt) -> TaskResponse:
         """
-        Process a user request end-to-end
+        Processes a user request from start to finish.
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+
+        Returns:
+            TaskResponse: The response to the user's request.
         """
         task_id = str(uuid.uuid4())
         
@@ -128,7 +148,13 @@ class ActionExecutionFramework:
     
     async def execute_plan(self, plan: TaskExecutionPlan) -> ActionExecutionResult:
         """
-        Execute a complete action plan
+        Executes a complete action plan.
+
+        Args:
+            plan (TaskExecutionPlan): The plan to execute.
+
+        Returns:
+            ActionExecutionResult: The result of the execution.
         """
         results = []
         success = True
@@ -182,7 +208,13 @@ class ActionExecutionFramework:
     
     async def execute_action(self, action: BrowserAction) -> ActionResult:
         """
-        Execute a single browser action
+        Executes a single browser action.
+
+        Args:
+            action (BrowserAction): The action to execute.
+
+        Returns:
+            ActionResult: The result of the action.
         """
         try:
             # Wait for the element if needed
@@ -281,7 +313,13 @@ class ActionExecutionFramework:
     
     async def _is_high_risk_action(self, action: BrowserAction) -> bool:
         """
-        Determine if an action is high-risk and requires user confirmation
+        Determines if an action is high-risk and requires user confirmation.
+
+        Args:
+            action (BrowserAction): The action to check.
+
+        Returns:
+            bool: True if the action is high-risk, False otherwise.
         """
         # Actions that might be high-risk:
         # - Actions targeting sensitive elements (password, SSN, etc.)
@@ -306,12 +344,21 @@ class ActionExecutionFramework:
     
     async def get_task_status(self, task_id: str) -> Optional[TaskResponse]:
         """
-        Get the status of a specific task
+        Gets the status of a specific task.
+
+        Args:
+            task_id (str): The ID of the task.
+
+        Returns:
+            Optional[TaskResponse]: The status of the task, or None if the task is not found.
         """
         return self.active_tasks.get(task_id)
     
     async def get_all_tasks(self) -> Dict[str, TaskResponse]:
         """
-        Get all active tasks
+        Gets all active tasks.
+
+        Returns:
+            Dict[str, TaskResponse]: A dictionary of all active tasks.
         """
         return self.active_tasks.copy()

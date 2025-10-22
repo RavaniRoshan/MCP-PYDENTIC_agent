@@ -4,10 +4,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { UserPlusIcon } from '@heroicons/react/24/outline';
 
+/**
+ * @interface RegisterFormProps
+ * @description The props for the RegisterForm component.
+ * @property {() => void} onSwitchToLogin - A function to switch to the login form.
+ */
 interface RegisterFormProps {
   onSwitchToLogin?: () => void;
 }
 
+/**
+ * @component RegisterForm
+ * @description A component that provides a registration form for new users.
+ * @param {RegisterFormProps} props - The props for the component.
+ * @returns {React.FC} The registration form component.
+ */
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -18,6 +29,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * @function handleSubmit
+   * @description Handles the submission of the registration form.
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);

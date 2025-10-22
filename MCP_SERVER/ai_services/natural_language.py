@@ -7,7 +7,7 @@ from enum import Enum
 
 class IntentType(str, Enum):
     """
-    Types of user intents we can recognize
+    Enumeration of user intent types that can be recognized.
     """
     NAVIGATION = "navigation"
     CLICK = "click"
@@ -20,17 +20,31 @@ class IntentType(str, Enum):
 
 class NEREntity(BaseModel):
     """
-    Named Entity Recognition result
+    Represents a Named Entity Recognition (NER) result.
+
+    Attributes:
+        text (str): The text of the recognized entity.
+        label (str): The label of the entity (e.g., URL, EMAIL, DATE, TIME).
+        start (int): The starting index of the entity in the original text.
+        end (int): The ending index of the entity in the original text.
     """
     text: str
-    label: str  # URL, EMAIL, DATE, TIME, etc.
+    label: str
     start: int
     end: int
 
 
 class IntentRecognitionResult(BaseModel):
     """
-    Result of intent recognition
+    Represents the result of an intent recognition process.
+
+    Attributes:
+        intent (IntentType): The recognized intent.
+        confidence (float): The confidence score of the recognition.
+        entities (List[NEREntity]): A list of recognized named entities.
+        action_type (Optional[ActionType]): The type of action associated with the intent.
+        target (Optional[str]): The target of the action (e.g., a URL or an element).
+        value (Optional[str]): The value associated with the action (e.g., text to be typed).
     """
     intent: IntentType
     confidence: float
@@ -42,10 +56,16 @@ class IntentRecognitionResult(BaseModel):
 
 class NaturalLanguageProcessor:
     """
-    Processes natural language requests and extracts structured information
+    Processes natural language requests and extracts structured information.
+
+    This class provides methods to understand user prompts, identify intents,
+    and extract relevant entities to generate browser actions.
     """
     
     def __init__(self):
+        """
+        Initializes the NaturalLanguageProcessor with predefined patterns and keywords.
+        """
         self.intents_patterns = {
             IntentType.NAVIGATION: [
                 r"navigate to (.+)",
@@ -118,7 +138,13 @@ class NaturalLanguageProcessor:
     
     async def process_prompt(self, user_prompt: UserPrompt) -> IntentRecognitionResult:
         """
-        Process a user prompt and extract intent and entities
+        Processes a user prompt to extract intent and entities.
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+
+        Returns:
+            IntentRecognitionResult: The result of the intent recognition.
         """
         text = user_prompt.prompt.lower().strip()
         
@@ -142,7 +168,13 @@ class NaturalLanguageProcessor:
     
     def _extract_intent(self, text: str) -> IntentRecognitionResult:
         """
-        Extract intent from the text using pattern matching
+        Extracts intent from the text using pattern matching.
+
+        Args:
+            text (str): The text to process.
+
+        Returns:
+            IntentRecognitionResult: The result of the intent extraction.
         """
         best_match = (None, 0, None)  # (intent, confidence, match)
         
@@ -195,7 +227,14 @@ class NaturalLanguageProcessor:
     
     def _enhance_intent(self, result: IntentRecognitionResult, text: str) -> IntentRecognitionResult:
         """
-        Enhance the intent result with additional context
+        Enhances the intent result with additional context.
+
+        Args:
+            result (IntentRecognitionResult): The initial intent recognition result.
+            text (str): The original text.
+
+        Returns:
+            IntentRecognitionResult: The enhanced intent recognition result.
         """
         # If the intent is unknown but we have keywords, try to improve it
         if result.intent == IntentType.UNKNOWN:
@@ -234,7 +273,13 @@ class NaturalLanguageProcessor:
     
     def _extract_entities(self, text: str) -> List[NEREntity]:
         """
-        Extract named entities from the text
+        Extracts named entities from the text.
+
+        Args:
+            text (str): The text to process.
+
+        Returns:
+            List[NEREntity]: A list of extracted named entities.
         """
         entities = []
         
@@ -282,7 +327,13 @@ class NaturalLanguageProcessor:
     
     def _intent_to_action_type(self, intent: IntentType) -> Optional[ActionType]:
         """
-        Map intent to action type
+        Maps an intent to an action type.
+
+        Args:
+            intent (IntentType): The intent to map.
+
+        Returns:
+            Optional[ActionType]: The corresponding action type, or None if no mapping exists.
         """
         intent_map = {
             IntentType.NAVIGATION: ActionType.NAVIGATE,
@@ -295,7 +346,13 @@ class NaturalLanguageProcessor:
     
     async def generate_browser_action(self, recognition_result: IntentRecognitionResult) -> Optional[BrowserAction]:
         """
-        Generate a browser action from the recognition result
+        Generates a browser action from the recognition result.
+
+        Args:
+            recognition_result (IntentRecognitionResult): The result of the intent recognition.
+
+        Returns:
+            Optional[BrowserAction]: The generated browser action, or None if no action can be generated.
         """
         if recognition_result.intent == IntentType.UNKNOWN:
             return None

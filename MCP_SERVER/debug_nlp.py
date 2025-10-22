@@ -5,7 +5,10 @@ from ai_services.natural_language import NaturalLanguageProcessor, IntentType
 
 async def debug_nlp_type():
     """
-    Debug the TYPE intent extraction
+    A debugging function to test the TYPE intent extraction.
+
+    This function initializes a NaturalLanguageProcessor, creates a test prompt,
+    and then steps through the process of intent extraction and action generation.
     """
     nlp = NaturalLanguageProcessor()
     

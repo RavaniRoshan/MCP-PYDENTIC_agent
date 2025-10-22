@@ -4,10 +4,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 
+/**
+ * @interface LoginFormProps
+ * @description The props for the LoginForm component.
+ * @property {() => void} onSwitchToRegister - A function to switch to the registration form.
+ */
 interface LoginFormProps {
   onSwitchToRegister?: () => void;
 }
 
+/**
+ * @component LoginForm
+ * @description A component that provides a login form for users to sign in.
+ * @param {LoginFormProps} props - The props for the component.
+ * @returns {React.FC} The login form component.
+ */
 const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +27,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * @function handleSubmit
+   * @description Handles the submission of the login form.
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);

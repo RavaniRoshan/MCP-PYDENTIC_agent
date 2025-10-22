@@ -3,6 +3,11 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Cog6ToothIcon, UserCircleIcon, ShieldCheckIcon, BellIcon, KeyIcon } from '@heroicons/react/24/outline';
 
+/**
+ * @component Settings
+ * @description A component that provides a user interface for managing account settings and preferences.
+ * @returns {React.FC} The settings component.
+ */
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
@@ -33,6 +38,10 @@ const Settings: React.FC = () => {
     }
   });
 
+  /**
+   * @function handleSave
+   * @description Handles the saving of settings.
+   */
   const handleSave = () => {
     alert('Settings saved successfully!');
   };

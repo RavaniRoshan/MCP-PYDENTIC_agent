@@ -15,6 +15,14 @@ import {
   Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 
+/**
+ * @interface SuggestionCategory
+ * @description Represents a category of automation suggestions.
+ * @property {string} id - The unique identifier for the category.
+ * @property {string} name - The name of the category.
+ * @property {React.ReactNode} icon - The icon for the category.
+ * @property {string[]} suggestions - A list of suggestions in the category.
+ */
 interface SuggestionCategory {
   id: string;
   name: string;
@@ -22,6 +30,11 @@ interface SuggestionCategory {
   suggestions: string[];
 }
 
+/**
+ * @component AutomationSuggestions
+ * @description A component that displays a list of automation suggestions, categorized for easy browsing.
+ * @returns {React.FC} The automation suggestions component.
+ */
 const AutomationSuggestions: React.FC = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -90,16 +103,21 @@ const AutomationSuggestions: React.FC = () => {
   ];
 
   const allSuggestions = categories.flatMap(cat => 
-    cat.suggestions.map(s => ({ ...s, category: cat.id }))
+    cat.suggestions.map(s => ({ name: s, category: cat.id }))
   );
 
   const filteredSuggestions = activeCategory === 'all' 
     ? allSuggestions 
     : allSuggestions.filter(s => s.category === activeCategory);
 
-  const handleSuggestionClick = (suggestion: string) => {
+  /**
+   * @function handleSuggestionClick
+   * @description Handles the click event for a suggestion, navigating to the chat interface with the suggestion pre-filled.
+   * @param {string} suggestion - The suggestion that was clicked.
+   */
+  const handleSuggestionClick = (suggestion: { name: string, category: string }) => {
     // In a real app, this would navigate to the chat interface with the suggestion pre-filled
-    navigate('/', { state: { prefill: suggestion } });
+    navigate('/', { state: { prefill: suggestion.name } });
   };
 
   return (
@@ -157,7 +175,7 @@ const AutomationSuggestions: React.FC = () => {
                 <div 
                   key={index} 
                   className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200 cursor-pointer"
-                  onClick={() => handleSuggestionClick(suggestion as string)}
+                  onClick={() => handleSuggestionClick(suggestion)}
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -168,7 +186,7 @@ const AutomationSuggestions: React.FC = () => {
                         </span>
                       </div>
                       <h3 className="mt-2 text-lg font-medium text-gray-900">
-                        {suggestion as string}
+                        {suggestion.name}
                       </h3>
                     </div>
                     <ArrowRightIcon className="h-5 w-5 text-gray-400" />

@@ -10,11 +10,28 @@ import {
   ArrowPathIcon 
 } from '@heroicons/react/24/outline';
 
+/**
+ * @interface TaskStatusDisplayProps
+ * @description The props for the TaskStatusDisplay component.
+ * @property {TaskResponse} task - The task to be displayed.
+ */
 interface TaskStatusDisplayProps {
   task: TaskResponse;
 }
 
+/**
+ * @component TaskStatusDisplay
+ * @description A component that displays the status of a single automation task.
+ * @param {TaskStatusDisplayProps} props - The props for the component.
+ * @returns {React.FC} The task status display component.
+ */
 const TaskStatusDisplay: React.FC<TaskStatusDisplayProps> = ({ task }) => {
+  /**
+   * @function getStatusColor
+   * @description Returns the color for a given status.
+   * @param {string} status - The status to get the color for.
+   * @returns {string} The color class.
+   */
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
@@ -29,6 +46,12 @@ const TaskStatusDisplay: React.FC<TaskStatusDisplayProps> = ({ task }) => {
     }
   };
 
+  /**
+   * @function getStatusIcon
+   * @description Returns the icon for a given status.
+   * @param {string} status - The status to get the icon for.
+   * @returns {React.ReactNode} The icon.
+   */
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':

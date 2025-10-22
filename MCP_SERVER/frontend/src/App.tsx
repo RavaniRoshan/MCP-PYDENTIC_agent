@@ -12,6 +12,11 @@ import AutomationSuggestions from './components/AutomationSuggestions';
 import TaskScheduler from './components/TaskScheduler';
 import './App.css';
 
+/**
+ * @component App
+ * @description The main component of the application, responsible for setting up the router and context providers.
+ * @returns {React.FC} The main application component.
+ */
 function App() {
   return (
     <AuthProvider>

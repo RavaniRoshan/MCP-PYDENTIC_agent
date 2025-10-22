@@ -12,6 +12,11 @@ import {
 } from '@heroicons/react/24/outline';
 import TaskStatusDisplay from './TaskStatusDisplay';
 
+/**
+ * @component ChatInterface
+ * @description A component that provides a chat interface for users to submit and monitor automation tasks.
+ * @returns {React.FC} The chat interface component.
+ */
 const ChatInterface: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +33,10 @@ const ChatInterface: React.FC = () => {
     "Monitor website changes for me"
   ];
 
+  /**
+   * @function scrollToBottom
+   * @description Scrolls the chat to the bottom.
+   */
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -36,6 +45,11 @@ const ChatInterface: React.FC = () => {
     scrollToBottom();
   }, [tasks]);
 
+  /**
+   * @function handleSubmit
+   * @description Handles the submission of a new task.
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -78,6 +92,11 @@ const ChatInterface: React.FC = () => {
     }
   };
 
+  /**
+   * @function handleSuggestionClick
+   * @description Handles the click event for a suggestion, populating the input field with the suggestion.
+   * @param {string} suggestion - The suggestion that was clicked.
+   */
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
   };

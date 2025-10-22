@@ -6,7 +6,11 @@ import uuid
 
 async def test_agent_with_proper_cleanup():
     """
-    Test the AutomateAI agent with proper resource management
+    Tests the AutomateAI agent with proper resource management.
+
+    This function creates a sample user prompt and task request, then
+    initializes and runs the AutomateAIAgent to process the task, ensuring
+    that the browser controller is properly closed after the test.
     """
     # Create a sample user prompt
     user_prompt = UserPrompt(

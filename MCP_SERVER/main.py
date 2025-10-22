@@ -29,12 +29,21 @@ active_tasks: Dict[str, TaskResponse] = {}
 
 @app.get("/")
 async def root():
+    """
+    The root endpoint of the MCP Server.
+    """
     return {"message": "Welcome to AutomateAI MCP Server", "status": "running"}
 
 @app.post("/prompt", response_model=TaskResponse)
 async def handle_prompt(user_prompt: UserPrompt):
     """
-    Handle user prompts and initiate task execution
+    Handles user prompts and initiates task execution.
+
+    Args:
+        user_prompt (UserPrompt): The user's prompt.
+
+    Returns:
+        TaskResponse: The response to the user's prompt.
     """
     task_id = str(uuid.uuid4())
     
@@ -68,7 +77,13 @@ async def handle_prompt(user_prompt: UserPrompt):
 @app.post("/execute", response_model=TaskResponse)
 async def execute_action(action: BrowserAction):
     """
-    Execute a specific browser action
+    Executes a specific browser action.
+
+    Args:
+        action (BrowserAction): The action to be executed.
+
+    Returns:
+        TaskResponse: The response to the action.
     """
     # This endpoint would execute a single action
     # In a real implementation, this would interact with the browser
@@ -90,7 +105,10 @@ async def execute_action(action: BrowserAction):
 @app.get("/observe", response_model=Dict)
 async def observe_browser():
     """
-    Observe current browser state
+    Observes the current browser state.
+
+    Returns:
+        Dict: A dictionary representing the current browser state.
     """
     # This would return the current browser state
     # For now, returning a placeholder
@@ -104,7 +122,13 @@ async def observe_browser():
 @app.get("/tasks/{task_id}", response_model=TaskResponse)
 async def get_task_status(task_id: str):
     """
-    Get the status of a specific task
+    Gets the status of a specific task.
+
+    Args:
+        task_id (str): The ID of the task.
+
+    Returns:
+        TaskResponse: The status of the task.
     """
     if task_id not in active_tasks:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -114,7 +138,10 @@ async def get_task_status(task_id: str):
 @app.get("/tasks", response_model=Dict[str, TaskResponse])
 async def get_all_tasks():
     """
-    Get all active tasks
+    Gets all active tasks.
+
+    Returns:
+        Dict[str, TaskResponse]: A dictionary of all active tasks.
     """
     return active_tasks
 

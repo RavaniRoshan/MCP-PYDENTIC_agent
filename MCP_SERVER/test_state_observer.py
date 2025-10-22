@@ -6,7 +6,11 @@ from core.browser_controller import MockBrowserController
 
 async def test_state_observer():
     """
-    Test the browser state observer
+    Tests the browser state observer.
+
+    This function initializes a BrowserStateObserver with a mock browser
+    controller, and then tests the state observation and element finding
+    functionality.
     """
     print("Testing Browser State Observer")
     print("="*50)

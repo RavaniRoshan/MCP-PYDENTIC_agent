@@ -11,7 +11,13 @@ from core.config import settings
 
 class VisionLanguageResponse(BaseModel):
     """
-    Response from the vision-language model
+    Represents the response from a vision-language model.
+
+    Attributes:
+        success (bool): Indicates whether the request was successful.
+        actions (List[Dict[str, Any]]): A list of actions to be executed.
+        reasoning (str): The reasoning behind the generated actions.
+        error (Optional[str]): A description of the error if the request failed.
     """
     success: bool
     actions: List[Dict[str, Any]] = Field(default_factory=list)
@@ -21,7 +27,7 @@ class VisionLanguageResponse(BaseModel):
 
 class VisionLanguageProvider(ABC):
     """
-    Abstract interface for vision-language model providers
+    An abstract interface for vision-language model providers.
     """
     
     @abstractmethod
@@ -31,17 +37,27 @@ class VisionLanguageProvider(ABC):
         browser_state: BrowserState
     ) -> VisionLanguageResponse:
         """
-        Process a user request using the vision-language model
+        Processes a user request using the vision-language model.
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+            browser_state (BrowserState): The current state of the browser.
+
+        Returns:
+            VisionLanguageResponse: The response from the vision-language model.
         """
         pass
 
 
 class GeminiVisionProvider(VisionLanguageProvider):
     """
-    Integration with Google's Gemini vision-language model
+    Provides an integration with Google's Gemini vision-language model.
     """
     
     def __init__(self):
+        """
+        Initializes the GeminiVisionProvider.
+        """
         self.api_key = settings.gemini_api_key
         self.api_url = settings.gemini_api_url
         self.logger = logging.getLogger(__name__)
@@ -52,7 +68,14 @@ class GeminiVisionProvider(VisionLanguageProvider):
         browser_state: BrowserState
     ) -> VisionLanguageResponse:
         """
-        Process a user request using the Gemini API
+        Processes a user request using the Gemini API.
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+            browser_state (BrowserState): The current state of the browser.
+
+        Returns:
+            VisionLanguageResponse: The response from the Gemini API.
         """
         if not self.api_key:
             return VisionLanguageResponse(
@@ -69,7 +92,14 @@ class GeminiVisionProvider(VisionLanguageProvider):
     
     def _build_prompt(self, user_prompt: UserPrompt, browser_state: BrowserState) -> str:
         """
-        Build the prompt to send to the vision-language model
+        Builds the prompt to send to the vision-language model.
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+            browser_state (BrowserState): The current state of the browser.
+
+        Returns:
+            str: The prompt to be sent to the model.
         """
         return f"""
         User request: {user_prompt.prompt}
@@ -98,8 +128,15 @@ class GeminiVisionProvider(VisionLanguageProvider):
         browser_state: BrowserState
     ) -> VisionLanguageResponse:
         """
-        Mock response for development purposes
-        In production, this would be a real API call to Gemini
+        Generates a mock response for development purposes.
+        In a production environment, this would be a real API call to Gemini.
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+            browser_state (BrowserState): The current state of the browser.
+
+        Returns:
+            VisionLanguageResponse: A mock response from the Gemini API.
         """
         import random
         await asyncio.sleep(0.1)  # Simulate API call delay
@@ -169,7 +206,7 @@ class GeminiVisionProvider(VisionLanguageProvider):
 
 class OpenAIVisionProvider(VisionLanguageProvider):
     """
-    Integration with OpenAI's vision-language model (placeholder implementation)
+    Provides an integration with OpenAI's vision-language model (placeholder implementation).
     """
     
     async def process_request(
@@ -178,7 +215,14 @@ class OpenAIVisionProvider(VisionLanguageProvider):
         browser_state: BrowserState
     ) -> VisionLanguageResponse:
         """
-        Process a user request using OpenAI's API (placeholder)
+        Processes a user request using OpenAI's API (placeholder).
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+            browser_state (BrowserState): The current state of the browser.
+
+        Returns:
+            VisionLanguageResponse: A placeholder response.
         """
         # Placeholder implementation - would connect to OpenAI API in real implementation
         return VisionLanguageResponse(
@@ -189,10 +233,13 @@ class OpenAIVisionProvider(VisionLanguageProvider):
 
 class VisionLanguageProcessor:
     """
-    Main processor that handles vision-language model integration
+    The main processor that handles vision-language model integration.
     """
     
     def __init__(self):
+        """
+        Initializes the VisionLanguageProcessor.
+        """
         self.provider: VisionLanguageProvider = None
         self.logger = logging.getLogger(__name__)
         
@@ -205,7 +252,10 @@ class VisionLanguageProcessor:
     
     def _create_fallback_provider(self) -> VisionLanguageProvider:
         """
-        Create a fallback provider when no API keys are configured
+        Creates a fallback provider for when no API keys are configured.
+
+        Returns:
+            VisionLanguageProvider: A fallback provider.
         """
         class FallbackProvider(VisionLanguageProvider):
             async def process_request(self, user_prompt: UserPrompt, browser_state: BrowserState) -> VisionLanguageResponse:
@@ -222,7 +272,14 @@ class VisionLanguageProcessor:
         browser_state: BrowserState
     ) -> TaskExecutionPlan:
         """
-        Process a user request and return an execution plan
+        Processes a user request and returns an execution plan.
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+            browser_state (BrowserState): The current state of the browser.
+
+        Returns:
+            TaskExecutionPlan: An execution plan based on the user's request.
         """
         if not self.provider:
             self.logger.error("No vision-language provider configured")

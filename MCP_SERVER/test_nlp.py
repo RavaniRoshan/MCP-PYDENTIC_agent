@@ -6,7 +6,11 @@ from ai_services.vision_language import VisionLanguageProcessor
 
 async def test_nlp_module():
     """
-    Test the natural language processing module
+    Tests the natural language processing module.
+
+    This function initializes a NaturalLanguageProcessor and a
+    VisionLanguageProcessor, and then tests various user prompts to ensure that
+    intents, entities, and actions are correctly identified.
     """
     print("Testing Natural Language Processing Module")
     print("="*50)

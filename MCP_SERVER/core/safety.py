@@ -9,10 +9,17 @@ logger = logging.getLogger(__name__)
 
 class SafetyValidator:
     """
-    Validates actions and plans for safety compliance
+    Validates actions and plans for safety compliance.
+
+    This class provides methods to validate user prompts, browser actions, and
+    task execution plans against a set of safety rules. It checks for
+    disallowed actions, sensitive data, and potential security risks.
     """
     
     def __init__(self):
+        """
+        Initializes the SafetyValidator with settings from the configuration.
+        """
         self.allowed_actions = settings.allowed_action_types
         self.max_execution_time = settings.max_execution_time
         self.blocked_domains = [
@@ -26,7 +33,13 @@ class SafetyValidator:
         
     async def validate_plan(self, plan: TaskExecutionPlan) -> bool:
         """
-        Validate an execution plan for safety
+        Validates an execution plan for safety.
+
+        Args:
+            plan: The TaskExecutionPlan to validate.
+
+        Returns:
+            True if the plan is safe, False otherwise.
         """
         # Check if all actions are allowed
         for action in plan.actions:
@@ -48,7 +61,13 @@ class SafetyValidator:
     
     async def validate_action(self, action: BrowserAction) -> bool:
         """
-        Validate a single action for safety
+        Validates a single action for safety.
+
+        Args:
+            action: The BrowserAction to validate.
+
+        Returns:
+            True if the action is safe, False otherwise.
         """
         # Check if action type is allowed
         if action.type not in self.allowed_actions:
@@ -75,7 +94,13 @@ class SafetyValidator:
     
     async def validate_prompt(self, prompt: UserPrompt) -> bool:
         """
-        Validate a user prompt for safety
+        Validates a user prompt for safety.
+
+        Args:
+            prompt: The UserPrompt to validate.
+
+        Returns:
+            True if the prompt is safe, False otherwise.
         """
         prompt_lower = prompt.prompt.lower()
         
@@ -101,7 +126,13 @@ class SafetyValidator:
     
     async def _check_security_risks(self, plan: TaskExecutionPlan) -> bool:
         """
-        Check for potential security risks in a plan
+        Checks for potential security risks in a plan.
+
+        Args:
+            plan: The TaskExecutionPlan to check.
+
+        Returns:
+            True if a security risk is detected, False otherwise.
         """
         # Check for rapid-fire actions that might indicate abuse
         if len(plan.actions) > 50:  # arbitrary threshold
@@ -122,15 +153,26 @@ class SafetyValidator:
 
 class SafetyConfirmation:
     """
-    Handles user confirmations for potentially risky actions
+    Handles user confirmations for potentially risky actions.
     """
     
     def __init__(self):
+        """
+        Initializes the SafetyConfirmation handler.
+        """
         self.pending_confirmations = {}
     
     async def request_confirmation(self, action: BrowserAction, user_id: str = "default_user") -> bool:
         """
-        Request user confirmation for a potentially risky action
+        Requests user confirmation for a potentially risky action.
+
+        Args:
+            action: The BrowserAction requiring confirmation.
+            user_id: The ID of the user.
+
+        Returns:
+            True if the action is confirmed, False otherwise. In this mock
+            implementation, it always returns True.
         """
         # In a real implementation, this would send a notification to the user
         # For now, we'll implement a simple confirmation mechanism
@@ -152,7 +194,13 @@ class SafetyConfirmation:
     
     async def confirm_action(self, confirmation_id: str) -> bool:
         """
-        Confirm a pending action
+        Confirms a pending action.
+
+        Args:
+            confirmation_id: The ID of the confirmation to confirm.
+
+        Returns:
+            True if the confirmation is found and confirmed, False otherwise.
         """
         if confirmation_id in self.pending_confirmations:
             self.pending_confirmations[confirmation_id]["confirmed"] = True
@@ -162,10 +210,13 @@ class SafetyConfirmation:
 
 class SafetyLogger:
     """
-    Logs safety-related events for audit purposes
+    Logs safety-related events for audit purposes.
     """
     
     def __init__(self):
+        """
+        Initializes the SafetyLogger.
+        """
         self.logger = logging.getLogger("safety_audit")
         
         # Set up file handler for safety logs
@@ -179,19 +230,32 @@ class SafetyLogger:
     
     async def log_action(self, action: BrowserAction, user_id: str = "default_user", success: bool = True):
         """
-        Log an action for safety auditing
+        Logs an action for safety auditing.
+
+        Args:
+            action: The BrowserAction to log.
+            user_id: The ID of the user who performed the action.
+            success: Whether the action was successful.
         """
         status = "SUCCESS" if success else "FAILED"
         self.logger.info(f"USER:{user_id} ACTION:{action.type} ID:{action.id} STATUS:{status}")
     
     async def log_safety_violation(self, message: str, user_id: str = "default_user"):
         """
-        Log a safety violation
+        Logs a safety violation.
+
+        Args:
+            message: The safety violation message.
+            user_id: The ID of the user associated with the violation.
         """
         self.logger.warning(f"SAFETY VIOLATION - USER:{user_id} - {message}")
     
     async def log_prompt(self, prompt: UserPrompt, user_id: str = "default_user"):
         """
-        Log a user prompt for review
+        Logs a user prompt for review.
+
+        Args:
+            prompt: The UserPrompt to log.
+            user_id: The ID of the user who submitted the prompt.
         """
         self.logger.info(f"USER:{user_id} PROMPT:{prompt.prompt[:100]}...")  # First 100 chars

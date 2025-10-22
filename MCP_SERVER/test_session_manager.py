@@ -4,7 +4,11 @@ from ai_services.session_manager import SessionManager
 
 async def test_session_manager():
     """
-    Test the secure browser session management system
+    Tests the secure browser session management system.
+
+    This function initializes a SessionManager, creates several test sessions
+    with different permissions and domains, and then tests session validation,
+    domain access, and session cleanup.
     """
     print("Testing Session Management System")
     print("="*50)

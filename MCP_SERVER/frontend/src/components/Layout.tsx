@@ -13,10 +13,21 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 
+/**
+ * @interface LayoutProps
+ * @description The props for the Layout component.
+ * @property {ReactNode} children - The child elements to be rendered within the layout.
+ */
 interface LayoutProps {
   children: ReactNode;
 }
 
+/**
+ * @component Layout
+ * @description A component that provides the main layout for the application, including a sidebar and main content area.
+ * @param {LayoutProps} props - The props for the component.
+ * @returns {React.FC} The layout component.
+ */
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user, logout } = useAuth();

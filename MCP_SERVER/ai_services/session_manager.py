@@ -13,24 +13,40 @@ from core.config import settings
 
 class SessionInfo(BaseModel):
     """
-    Information about a browser session
+    Represents information about a browser session.
+
+    Attributes:
+        session_id (str): A unique identifier for the session.
+        user_id (str): The ID of the user who owns the session.
+        created_at (datetime): The timestamp of when the session was created.
+        last_activity (datetime): The timestamp of the last activity in the session.
+        is_active (bool): A flag indicating whether the session is active.
+        browser_type (str): The type of browser used in the session (e.g., 'mock' or 'playwright').
+        permission_level (str): The permission level of the session (e.g., 'read', 'write', 'full').
+        allowed_domains (List[str]): A list of domains that the session is allowed to access.
     """
     session_id: str
     user_id: str
     created_at: datetime
     last_activity: datetime
     is_active: bool
-    browser_type: str  # 'mock' or 'playwright'
-    permission_level: str  # 'read', 'write', 'full'
+    browser_type: str
+    permission_level: str
     allowed_domains: List[str] = []
 
 
 class SessionManager:
     """
-    Manages secure browser sessions for different users
+    Manages secure browser sessions for different users.
+
+    This class handles the creation, validation, and cleanup of browser sessions,
+    ensuring that each user has a secure and isolated environment.
     """
     
     def __init__(self):
+        """
+        Initializes the SessionManager.
+        """
         self.sessions: Dict[str, SessionInfo] = {}
         self.browser_instances: Dict[str, BrowserControllerInterface] = {}
         self.user_sessions: Dict[str, List[str]] = {}  # user_id -> [session_ids...]
@@ -44,14 +60,14 @@ class SessionManager:
     
     async def start(self):
         """
-        Start the session manager
+        Starts the session manager and the background cleanup task.
         """
         self._cleanup_task = asyncio.create_task(self._cleanup_expired_sessions())
         self.logger.info("Session manager started")
     
     async def stop(self):
         """
-        Stop the session manager
+        Stops the session manager and cleans up all active sessions.
         """
         self._stop_cleanup.set()
         if self._cleanup_task:
@@ -68,7 +84,15 @@ class SessionManager:
     
     async def create_session(self, user_id: str, permission_level: str = "write", allowed_domains: List[str] = None) -> Optional[SessionInfo]:
         """
-        Create a new browser session for a user
+        Creates a new browser session for a user.
+
+        Args:
+            user_id (str): The ID of the user.
+            permission_level (str): The permission level for the session.
+            allowed_domains (List[str], optional): A list of allowed domains. Defaults to None.
+
+        Returns:
+            Optional[SessionInfo]: Information about the created session, or None if the session limit is reached.
         """
         # Check if user has reached maximum sessions
         user_session_ids = self.user_sessions.get(user_id, [])
@@ -117,7 +141,13 @@ class SessionManager:
     
     async def get_session(self, session_id: str) -> Optional[SessionInfo]:
         """
-        Get session information by session ID
+        Gets session information by session ID.
+
+        Args:
+            session_id (str): The ID of the session.
+
+        Returns:
+            Optional[SessionInfo]: Information about the session, or None if the session is not found or inactive.
         """
         session_info = self.sessions.get(session_id)
         if session_info and session_info.is_active:
@@ -128,7 +158,13 @@ class SessionManager:
     
     async def get_browser_controller(self, session_id: str) -> Optional[BrowserControllerInterface]:
         """
-        Get the browser controller for a specific session
+        Gets the browser controller for a specific session.
+
+        Args:
+            session_id (str): The ID of the session.
+
+        Returns:
+            Optional[BrowserControllerInterface]: The browser controller for the session, or None if not found.
         """
         if session_id in self.browser_instances:
             return self.browser_instances[session_id]
@@ -136,7 +172,14 @@ class SessionManager:
     
     async def validate_session_access(self, session_id: str, url: str) -> bool:
         """
-        Validate if a session has permission to access a specific URL
+        Validates if a session has permission to access a specific URL.
+
+        Args:
+            session_id (str): The ID of the session.
+            url (str): The URL to be accessed.
+
+        Returns:
+            bool: True if the session has permission, False otherwise.
         """
         session_info = await self.get_session(session_id)
         if not session_info:
@@ -157,7 +200,13 @@ class SessionManager:
     
     async def close_session(self, session_id: str) -> bool:
         """
-        Close and remove a session
+        Closes and removes a session.
+
+        Args:
+            session_id (str): The ID of the session to close.
+
+        Returns:
+            bool: True if the session was closed successfully, False otherwise.
         """
         if session_id not in self.sessions:
             return False
@@ -186,7 +235,7 @@ class SessionManager:
     
     async def _cleanup_expired_sessions(self):
         """
-        Periodically clean up expired sessions
+        Periodically cleans up expired sessions in the background.
         """
         while not self._stop_cleanup.is_set():
             try:
@@ -213,14 +262,23 @@ class SessionManager:
     
     async def get_user_sessions(self, user_id: str) -> List[SessionInfo]:
         """
-        Get all sessions for a specific user
+        Gets all sessions for a specific user.
+
+        Args:
+            user_id (str): The ID of the user.
+
+        Returns:
+            List[SessionInfo]: A list of sessions belonging to the user.
         """
         session_ids = self.user_sessions.get(user_id, [])
         return [self.sessions[sid] for sid in session_ids if sid in self.sessions]
     
     async def get_active_session_count(self) -> int:
         """
-        Get the number of active sessions
+        Gets the number of active sessions.
+
+        Returns:
+            int: The number of active sessions.
         """
         count = 0
         current_time = datetime.utcnow()
@@ -232,16 +290,31 @@ class SessionManager:
 
 class SessionMiddleware:
     """
-    Middleware to handle session management in API requests
+    Middleware to handle session management in API requests.
+
+    This class provides methods to authenticate and validate sessions,
+    and to retrieve the corresponding browser controller.
     """
     
     def __init__(self, session_manager: SessionManager):
+        """
+        Initializes the SessionMiddleware.
+
+        Args:
+            session_manager (SessionManager): An instance of the SessionManager.
+        """
         self.session_manager = session_manager
         self.logger = logging.getLogger(__name__)
     
     async def authenticate_session(self, session_id: str) -> Optional[SessionInfo]:
         """
-        Authenticate a session ID
+        Authenticates a session ID.
+
+        Args:
+            session_id (str): The ID of the session to authenticate.
+
+        Returns:
+            Optional[SessionInfo]: Information about the session if authentication is successful, None otherwise.
         """
         session_info = await self.session_manager.get_session(session_id)
         if not session_info:
@@ -251,7 +324,13 @@ class SessionMiddleware:
     
     async def validate_and_get_controller(self, session_id: str) -> Optional[BrowserControllerInterface]:
         """
-        Validate a session and get its browser controller
+        Validates a session and gets its browser controller.
+
+        Args:
+            session_id (str): The ID of the session.
+
+        Returns:
+            Optional[BrowserControllerInterface]: The browser controller for the session if validation is successful, None otherwise.
         """
         session_info = await self.authenticate_session(session_id)
         if not session_info:

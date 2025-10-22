@@ -12,20 +12,34 @@ from core.browser_controller import BrowserControllerInterface
 
 class TaskUpdateSubscriber:
     """
-    Interface for task update subscribers (e.g., WebSocket connections)
+    Represents a subscriber for task updates, typically a WebSocket connection.
+
+    Attributes:
+        id (str): A unique identifier for the subscriber.
+        send_func (Callable[[Dict[str, Any]], Awaitable[None]]): A function to send updates to the subscriber.
+        tasks_subscribed (set): A set of task IDs that the subscriber is interested in.
     """
     def __init__(self, subscriber_id: str, send_func: Callable[[Dict[str, Any]], Awaitable[None]]):
         self.id = subscriber_id
         self.send_func = send_func
-        self.tasks_subscribed = set()  # Task IDs this subscriber is interested in
+        self.tasks_subscribed = set()
 
 
 class TaskManager:
     """
-    Manages tasks and provides real-time updates to subscribers
+    Manages tasks and provides real-time updates to subscribers.
+
+    This class handles the creation, processing, and status tracking of tasks,
+    and notifies subscribers of any updates.
     """
     
     def __init__(self, browser_controller: BrowserControllerInterface):
+        """
+        Initializes the TaskManager.
+
+        Args:
+            browser_controller (BrowserControllerInterface): An instance of a browser controller.
+        """
         self.browser_controller = browser_controller
         self.action_framework = ActionExecutionFramework(browser_controller)
         self.tasks: Dict[str, TaskResponse] = {}
@@ -39,14 +53,14 @@ class TaskManager:
     
     async def start(self):
         """
-        Start the task manager
+        Starts the task manager and the background task processor.
         """
         self._processor_task = asyncio.create_task(self._task_processor())
         self.logger.info("Task manager started")
     
     async def stop(self):
         """
-        Stop the task manager
+        Stops the task manager and the background task processor.
         """
         self._stop_event.set()
         if self._processor_task:
@@ -55,7 +69,7 @@ class TaskManager:
     
     async def _task_processor(self):
         """
-        Background task processor that handles tasks from queues
+        A background task processor that handles tasks from queues.
         """
         while not self._stop_event.is_set():
             # Process tasks from all queues
@@ -76,7 +90,10 @@ class TaskManager:
     
     async def _process_single_task(self, task_request: TaskRequest):
         """
-        Process a single task request and update its status
+        Processes a single task request and updates its status.
+
+        Args:
+            task_request (TaskRequest): The task request to process.
         """
         try:
             # Update task status to processing
@@ -112,7 +129,14 @@ class TaskManager:
     
     async def create_task(self, user_prompt: UserPrompt, user_id: str = "default") -> str:
         """
-        Create a new task and add it to the appropriate queue
+        Creates a new task and adds it to the appropriate queue.
+
+        Args:
+            user_prompt (UserPrompt): The user's prompt.
+            user_id (str): The ID of the user.
+
+        Returns:
+            str: The ID of the created task.
         """
         task_id = str(uuid4())
         
@@ -147,13 +171,25 @@ class TaskManager:
     
     async def get_task_status(self, task_id: str) -> Optional[TaskResponse]:
         """
-        Get the status of a specific task
+        Gets the status of a specific task.
+
+        Args:
+            task_id (str): The ID of the task.
+
+        Returns:
+            Optional[TaskResponse]: The status of the task, or None if not found.
         """
         return self.tasks.get(task_id)
     
     async def get_user_tasks(self, user_id: str) -> List[TaskResponse]:
         """
-        Get all tasks for a specific user
+        Gets all tasks for a specific user.
+
+        Args:
+            user_id (str): The ID of the user.
+
+        Returns:
+            List[TaskResponse]: A list of tasks for the user.
         """
         user_tasks = []
         for task in self.tasks.values():
@@ -163,20 +199,31 @@ class TaskManager:
     
     async def subscribe_to_task_updates(self, subscriber_id: str, send_func: Callable[[Dict[str, Any]], Awaitable[None]]) -> None:
         """
-        Subscribe to task updates
+        Subscribes to task updates.
+
+        Args:
+            subscriber_id (str): A unique ID for the subscriber.
+            send_func (Callable[[Dict[str, Any]], Awaitable[None]]): The function to call with updates.
         """
         self.subscribers[subscriber_id] = TaskUpdateSubscriber(subscriber_id, send_func)
     
     async def unsubscribe_from_task_updates(self, subscriber_id: str) -> None:
         """
-        Unsubscribe from task updates
+        Unsubscribes from task updates.
+
+        Args:
+            subscriber_id (str): The ID of the subscriber to remove.
         """
         if subscriber_id in self.subscribers:
             del self.subscribers[subscriber_id]
     
     async def _notify_subscribers(self, task_id: str, task_response: TaskResponse):
         """
-        Notify all subscribers about a task update
+        Notifies all subscribers about a task update.
+
+        Args:
+            task_id (str): The ID of the task that was updated.
+            task_response (TaskResponse): The updated task response.
         """
         for subscriber in list(self.subscribers.values()):
             try:
@@ -196,7 +243,13 @@ class TaskManager:
     
     async def get_recent_tasks(self, limit: int = 10) -> List[TaskResponse]:
         """
-        Get the most recent tasks
+        Gets the most recent tasks.
+
+        Args:
+            limit (int): The maximum number of tasks to return.
+
+        Returns:
+            List[TaskResponse]: A list of the most recent tasks.
         """
         sorted_tasks = sorted(
             self.tasks.values(),
@@ -207,7 +260,10 @@ class TaskManager:
     
     async def get_task_statistics(self) -> Dict[str, Any]:
         """
-        Get overall task statistics
+        Gets overall task statistics.
+
+        Returns:
+            Dict[str, Any]: A dictionary of task statistics.
         """
         total_tasks = len(self.tasks)
         completed_tasks = len([t for t in self.tasks.values() if t.status == "completed"])
@@ -227,16 +283,26 @@ class TaskManager:
 
 class TaskWebSocketHandler:
     """
-    WebSocket handler that integrates with the task manager
+    A WebSocket handler that integrates with the TaskManager.
     """
     
     def __init__(self, task_manager: TaskManager):
+        """
+        Initializes the TaskWebSocketHandler.
+
+        Args:
+            task_manager (TaskManager): An instance of the TaskManager.
+        """
         self.task_manager = task_manager
         self.active_connections: Dict[str, Any] = {}  # connection_id -> websocket
     
     async def connect(self, websocket: Any, user_id: str):
         """
-        Handle a new WebSocket connection
+        Handles a new WebSocket connection.
+
+        Args:
+            websocket (Any): The WebSocket connection object.
+            user_id (str): The ID of the user.
         """
         await websocket.accept()
         connection_id = f"{user_id}_{uuid4()}"
@@ -265,7 +331,10 @@ class TaskWebSocketHandler:
     
     async def disconnect(self, connection_id: str):
         """
-        Handle WebSocket disconnection
+        Handles a WebSocket disconnection.
+
+        Args:
+            connection_id (str): The ID of the connection to disconnect.
         """
         if connection_id in self.active_connections:
             del self.active_connections[connection_id]
@@ -273,7 +342,14 @@ class TaskWebSocketHandler:
     
     async def handle_create_task(self, user_id: str, prompt: str):
         """
-        Handle a request to create a new task
+        Handles a request to create a new task.
+
+        Args:
+            user_id (str): The ID of the user.
+            prompt (str): The user's prompt.
+
+        Returns:
+            str: The ID of the created task.
         """
         user_prompt = UserPrompt(prompt=prompt, priority="normal", timeout=300)
         task_id = await self.task_manager.create_task(user_prompt, user_id)

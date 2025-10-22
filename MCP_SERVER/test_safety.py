@@ -7,7 +7,11 @@ import uuid
 
 async def test_safety_features():
     """
-    Test the safety features of the AutomateAI system
+    Tests the safety features of the AutomateAI system.
+
+    This function tests the SafetyValidator by creating safe and unsafe
+    prompts, actions, and plans, and then validates them. It also tests the
+    AutomateAIAgent with an unsafe prompt to ensure that it is handled correctly.
     """
     print("Testing Safety Features")
     print("="*50)

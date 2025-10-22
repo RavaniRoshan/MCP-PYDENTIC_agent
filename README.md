@@ -18,6 +18,58 @@ AutomateAI is a hobbyist project to create an AI assistant that can automate web
 *   **Vision-language AI integration:** Leverages the Gemini 2.5 Computer Use API for understanding web interfaces.
 *   **Safety-first design principles:** Prioritizes user safety with features like action validation and permission controls.
 
+## Getting Started
+
+### Prerequisites
+
+*   Python 3.10+
+*   Node.js 16+
+*   Poetry
+*   Docker
+
+### Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/AutomateAI-Agent.git
+    cd AutomateAI-Agent
+    ```
+2.  **Install backend dependencies:**
+    ```bash
+    cd MCP_SERVER
+    poetry install
+    ```
+3.  **Install frontend dependencies:**
+    ```bash
+    cd frontend
+    npm install
+    ```
+4.  **Set up environment variables:**
+    Create a `.env` file in the `MCP_SERVER` directory and add the following:
+    ```
+    GEMINI_API_KEY=your_api_key
+    ```
+5.  **Run the application:**
+    ```bash
+    cd ..
+    poetry run uvicorn main:app --reload
+    ```
+    In a separate terminal, run the frontend:
+    ```bash
+    cd frontend
+    npm start
+    ```
+
+## Usage
+
+1.  Open your browser and navigate to `http://localhost:3000`.
+2.  Use the chat interface to enter a prompt for a web task. For example:
+    *   "Navigate to https://example.com"
+    *   "Click on the 'More information...' link"
+    *   "Type 'hello world' into the search bar"
+3.  The agent will process your request and execute the task in a new browser window.
+4.  You can monitor the task's progress in the chat interface.
+
 ## Development Phases
 
 The project is divided into the following development phases:

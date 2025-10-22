@@ -5,6 +5,9 @@ from datetime import datetime
 
 
 class ActionType(str, Enum):
+    """
+    Enumeration of possible browser action types.
+    """
     CLICK = "click"
     TYPE = "type"
     NAVIGATE = "navigate"
@@ -17,7 +20,12 @@ class ActionType(str, Enum):
 
 class ElementSelector(BaseModel):
     """
-    Defines how to identify an element in the browser
+    Defines how to identify an element in the browser.
+
+    Attributes:
+        type (str): The type of selector (e.g., css, xpath, text).
+        value (str): The value of the selector.
+        description (Optional[str]): A human-readable description of the element.
     """
     type: str = Field(..., description="Type of selector (css, xpath, text, etc.)")
     value: str = Field(..., description="The selector value")
@@ -26,7 +34,17 @@ class ElementSelector(BaseModel):
 
 class BrowserAction(BaseModel):
     """
-    Base class for browser actions
+    A base class for browser actions.
+
+    Attributes:
+        id (str): A unique identifier for the action.
+        type (ActionType): The type of the action.
+        element (Optional[ElementSelector]): The element to be acted upon.
+        value (Optional[Union[str, int, float]]): The value associated with the action.
+        description (Optional[str]): A human-readable description of the action.
+        timeout (Optional[int]): The timeout for the action in milliseconds.
+        created_at (datetime): The timestamp of when the action was created.
+        metadata (Optional[Dict[str, Any]]): A dictionary of metadata for the action.
     """
     id: str
     type: ActionType
@@ -40,26 +58,42 @@ class BrowserAction(BaseModel):
 
 class ClickAction(BrowserAction):
     """
-    Click-specific parameters
+    Represents a click action with click-specific parameters.
+
+    Attributes:
+        type (ActionType): The type of the action, which is always CLICK.
+        button (str): The mouse button to be used for the click (e.g., 'left', 'right', 'middle').
+        click_count (int): The number of times to click.
+        position (Optional[Dict[str, int]]): The x and y coordinates of the click.
     """
     type: ActionType = ActionType.CLICK
-    button: str = "left"  # left, right, middle
+    button: str = "left"
     click_count: int = 1
-    position: Optional[Dict[str, int]] = None  # x, y coordinates
+    position: Optional[Dict[str, int]] = None
 
 
 class TypeAction(BrowserAction):
     """
-    Text input parameters
+    Represents a text input action with type-specific parameters.
+
+    Attributes:
+        type (ActionType): The type of the action, which is always TYPE.
+        delay (Optional[int]): The delay between keystrokes in milliseconds.
+        clear (bool): A flag indicating whether to clear the input field before typing.
     """
     type: ActionType = ActionType.TYPE
-    delay: Optional[int] = 10  # milliseconds between keystrokes
+    delay: Optional[int] = 10
     clear: bool = True
 
 
 class NavigateAction(BrowserAction):
     """
-    Navigation commands
+    Represents a navigation action with navigation-specific parameters.
+
+    Attributes:
+        type (ActionType): The type of the action, which is always NAVIGATE.
+        url (str): The URL to navigate to.
+        new_tab (bool): A flag indicating whether to open the URL in a new tab.
     """
     type: ActionType = ActionType.NAVIGATE
     url: str

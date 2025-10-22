@@ -12,6 +12,11 @@ import {
   CpuChipIcon
 } from '@heroicons/react/24/outline';
 
+/**
+ * @component Dashboard
+ * @description A component that displays a dashboard with statistics and recent activity for automation tasks.
+ * @returns {React.FC} The dashboard component.
+ */
 const Dashboard: React.FC = () => {
   const { tasks } = useTasks();
   const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');

@@ -12,19 +12,34 @@ from core.browser_controller import BrowserControllerInterface
 
 class ElementInfo(BaseModel):
     """
-    Information about a specific element on the page
+    Represents detailed information about a specific element on a web page.
+
+    Attributes:
+        selector (ElementSelector): The selector for the element.
+        text (str): The text content of the element.
+        attributes (Dict[str, Any]): A dictionary of the element's attributes.
+        bounding_box (Optional[Dict[str, int]]): The bounding box of the element.
+        visibility (bool): A flag indicating whether the element is visible.
+        accessibility_info (Dict[str, Any]): A dictionary of accessibility information.
     """
     selector: ElementSelector
     text: str = ""
-    attributes: Dict[str, Any] = Field(default_factory=dict)  # Allow various types including lists
-    bounding_box: Optional[Dict[str, int]] = None  # x, y, width, height
+    attributes: Dict[str, Any] = Field(default_factory=dict)
+    bounding_box: Optional[Dict[str, int]] = None
     visibility: bool = True
     accessibility_info: Dict[str, Any] = Field(default_factory=dict)
 
 
 class StateObservationResult(BaseModel):
     """
-    Result of browser state observation
+    Represents the result of a browser state observation.
+
+    Attributes:
+        success (bool): A flag indicating whether the observation was successful.
+        browser_state (Optional[BrowserState]): The current state of the browser.
+        elements (List[ElementInfo]): A list of extracted elements from the page.
+        summary (str): A summary of the page's content.
+        error (Optional[str]): A description of the error if the observation failed.
     """
     success: bool
     browser_state: Optional[BrowserState] = None
@@ -35,16 +50,28 @@ class StateObservationResult(BaseModel):
 
 class BrowserStateObserver:
     """
-    Observes and analyzes the current state of the browser
+    Observes and analyzes the current state of the browser.
+
+    This class provides methods to capture the browser's state, extract
+    relevant elements, and generate a summary of the page's content.
     """
     
     def __init__(self, browser_controller: BrowserControllerInterface):
+        """
+        Initializes the BrowserStateObserver.
+
+        Args:
+            browser_controller (BrowserControllerInterface): An instance of a browser controller.
+        """
         self.browser_controller = browser_controller
         self.logger = logging.getLogger(__name__)
     
     async def observe_state(self) -> StateObservationResult:
         """
-        Observe the current state of the browser
+        Observes the current state of the browser.
+
+        Returns:
+            StateObservationResult: The result of the state observation.
         """
         try:
             # Get the current browser state
@@ -71,7 +98,13 @@ class BrowserStateObserver:
     
     async def _extract_elements(self, dom_content: str) -> List[ElementInfo]:
         """
-        Extract important elements from the DOM content
+        Extracts important elements from the DOM content.
+
+        Args:
+            dom_content (str): The HTML content of the page.
+
+        Returns:
+            List[ElementInfo]: A list of extracted elements.
         """
         elements = []
         
@@ -135,7 +168,14 @@ class BrowserStateObserver:
     
     def _generate_css_selector(self, element, soup) -> str:
         """
-        Generate a unique CSS selector for an element
+        Generates a unique CSS selector for an element.
+
+        Args:
+            element: The BeautifulSoup element.
+            soup: The BeautifulSoup object for the entire page.
+
+        Returns:
+            str: A unique CSS selector for the element.
         """
         tag = element.name
         path = []
@@ -162,7 +202,14 @@ class BrowserStateObserver:
     
     async def _summarize_page(self, browser_state: BrowserState, elements: List[ElementInfo]) -> str:
         """
-        Create a summary of the current page
+        Creates a summary of the current page.
+
+        Args:
+            browser_state (BrowserState): The current state of the browser.
+            elements (List[ElementInfo]): A list of extracted elements.
+
+        Returns:
+            str: A summary of the page's content.
         """
         title = browser_state.title
         url = browser_state.url
@@ -191,7 +238,13 @@ class BrowserStateObserver:
     
     async def find_element_by_description(self, description: str) -> Optional[ElementInfo]:
         """
-        Find an element by its description or text content
+        Finds an element by its description or text content.
+
+        Args:
+            description (str): The description of the element to find.
+
+        Returns:
+            Optional[ElementInfo]: Information about the found element, or None if no element is found.
         """
         observation = await self.observe_state()
         
@@ -224,7 +277,16 @@ class BrowserStateObserver:
     
     async def get_element_screenshot(self, selector: ElementSelector) -> Optional[str]:
         """
-        Take a screenshot of a specific element (if supported by browser controller)
+        Takes a screenshot of a specific element.
+
+        Note: This is a placeholder implementation that takes a full-page screenshot.
+        A real implementation would crop the screenshot to the element's bounding box.
+
+        Args:
+            selector (ElementSelector): The selector of the element.
+
+        Returns:
+            Optional[str]: The path to the screenshot, or None if an error occurs.
         """
         # This would take a screenshot of a specific element
         # For now, we'll just take a full page screenshot and return its path

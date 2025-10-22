@@ -6,7 +6,11 @@ from core.browser_controller import MockBrowserController
 
 async def test_action_execution_framework():
     """
-    Test the action execution framework
+    Tests the action execution framework.
+
+    This function initializes an ActionExecutionFramework with a mock browser
+    controller, and then tests various user prompts, including safe and unsafe
+    examples.
     """
     print("Testing Action Execution Framework")
     print("="*50)

@@ -6,7 +6,10 @@ import uuid
 
 async def test_agent():
     """
-    Test the AutomateAI agent with a simple task
+    Tests the AutomateAI agent with a simple task.
+
+    This function creates a sample user prompt and task request, then
+    initializes and runs the AutomateAIAgent to process the task.
     """
     # Create a sample user prompt
     user_prompt = UserPrompt(

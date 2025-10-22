@@ -5,7 +5,13 @@ import asyncio
 
 async def get_browser_controller() -> BrowserControllerInterface:
     """
-    Factory function to get the appropriate browser controller
+    A factory function that returns the appropriate browser controller.
+
+    This function checks if the PlaywrightBrowserController is available and, if so,
+    initializes and returns it. Otherwise, it returns a MockBrowserController.
+
+    Returns:
+        BrowserControllerInterface: An instance of a browser controller.
     """
     # Use Playwright controller if available, otherwise use mock
     if PlaywrightBrowserController is not None:
@@ -18,7 +24,10 @@ async def get_browser_controller() -> BrowserControllerInterface:
 
 async def initialize_browser():
     """
-    Initialize the browser controller with proper settings
+    Initializes the browser controller with the proper settings.
+
+    Returns:
+        BrowserControllerInterface: An instance of an initialized browser controller.
     """
     controller = await get_browser_controller()
     return controller

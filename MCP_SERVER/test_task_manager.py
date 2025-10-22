@@ -7,14 +7,18 @@ from core.browser_controller import MockBrowserController
 
 async def mock_send_func(update_data):
     """
-    Mock function to simulate sending updates to WebSocket clients
+    A mock function to simulate sending updates to WebSocket clients.
     """
     print(f"WebSocket update: {json.dumps(update_data, indent=2, default=str)[:200]}...")
 
 
 async def test_task_manager():
     """
-    Test the task management system with real-time updates
+    Tests the task management system with real-time updates.
+
+    This function initializes a TaskManager with a mock browser controller,
+    subscribes to task updates, and then creates several test tasks to ensure
+    that they are processed correctly and that the status updates are sent.
     """
     print("Testing Task Management System")
     print("="*50)

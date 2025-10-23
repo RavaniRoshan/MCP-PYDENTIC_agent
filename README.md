@@ -1,4 +1,4 @@
-# AutomateAI Agent
+#  Agent-X
 
 **Tagline:** The First AI That Works the Web For You. Hands-Free.
 

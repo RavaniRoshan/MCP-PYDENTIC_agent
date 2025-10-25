@@ -48,10 +48,28 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const connectWebSocket = () => {
     // Replace with your actual backend URL
     const wsUrl = process.env.REACT_APP_WS_URL || 'http://localhost:8000';
-    const newSocket = io(wsUrl);
+    const newSocket = io(wsUrl, {
+      transports: ['websocket'], // Use only WebSocket transport
+      // Additional configuration options
+      timeout: 20000,
+      autoConnect: true,
+    });
+    
+    newSocket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+    
+    newSocket.on('disconnect', (reason) => {
+      console.log('Disconnected from WebSocket server:', reason);
+    });
     
     newSocket.on('task_update', (data) => {
-      updateTask(data.data); // The server sends the full task object in the 'data' field
+      updateTask(data); // Update task with the received data
+      console.log('Task updated via WebSocket:', data);
+    });
+
+    newSocket.on('error', (error) => {
+      console.error('WebSocket error:', error);
     });
 
     setSocket(newSocket);
@@ -69,11 +87,20 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateTask = (updatedTask: TaskResponse) => {
-    setTasks(prev => 
-      prev.map(task => 
-        task.task_id === updatedTask.task_id ? updatedTask : task
-      )
-    );
+    setTasks(prev => {
+      // Check if task already exists
+      const taskExists = prev.some(task => task.task_id === updatedTask.task_id);
+      
+      if (taskExists) {
+        // Update existing task
+        return prev.map(task => 
+          task.task_id === updatedTask.task_id ? updatedTask : task
+        );
+      } else {
+        // Add new task
+        return [updatedTask, ...prev];
+      }
+    });
     
     // If this is the active task, update it too
     if (activeTask && activeTask.task_id === updatedTask.task_id) {

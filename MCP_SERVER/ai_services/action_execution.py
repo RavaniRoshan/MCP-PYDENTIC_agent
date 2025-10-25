@@ -271,17 +271,222 @@ class ActionExecutionFramework:
                 result = f"Typed text into {action.element.value}" if success else "Type action failed"
                 
             elif action.type == "extract":
+                # Import ExtractAction model to handle this specific action type
+                from models import ExtractAction, ExtractMethod
+                
+                # Determine if the extraction method requires an element selector
+                methods_requiring_selector = {
+                    "text_content", "html_content", "attribute", 
+                    "table", "list", "custom_selector"
+                }
+                
+                # Convert enum to string for comparison
+                method_str = str(action.method).split('.')[-1].lower() if hasattr(action.method, 'name') else str(action.method).lower()
+                # Handle cases where the enum is represented as 'ExtractMethod.TEXT_CONTENT'
+                if hasattr(action.method, 'value'):
+                    method_str = action.method.value
+                else:
+                    # If it's already a string representation, clean it up
+                    method_str = str(action.method).lower().replace('extractmethod.', '').replace('\'', '')
+                
+                # Check if selector is required and not provided for certain methods
+                if method_str in methods_requiring_selector:
+                    if not hasattr(action, 'element') or not action.element:
+                        return ActionResult(
+                            action_id=action.id,
+                            success=False,
+                            error=f"Extract action with {method_str} method requires an element selector",
+                            timestamp=datetime.utcnow()
+                        )
+                
+                # Handle different extraction methods
+                if action.method == "text_content":
+                    if not action.element:
+                        return ActionResult(
+                            action_id=action.id,
+                            success=False,
+                            error="Extract action with text_content method requires an element selector",
+                            timestamp=datetime.utcnow()
+                        )
+                    extracted_text = await self.browser_controller.extract_text(action.element)
+                    success = extracted_text is not None
+                    result = extracted_text or "Extraction failed"
+                    
+                elif action.method == "attribute":
+                    if not action.element or not action.attribute_name:
+                        return ActionResult(
+                            action_id=action.id,
+                            success=False,
+                            error="Extract action with attribute method requires both element selector and attribute name",
+                            timestamp=datetime.utcnow()
+                        )
+                    extracted_attr = await self.browser_controller.extract_attribute(action.element, action.attribute_name)
+                    success = extracted_attr is not None
+                    result = extracted_attr or "Attribute extraction failed"
+                    
+                elif action.method == "table":
+                    if not action.element:
+                        return ActionResult(
+                            action_id=action.id,
+                            success=False,
+                            error="Extract action with table method requires an element selector",
+                            timestamp=datetime.utcnow()
+                        )
+                    extracted_table = await self.browser_controller.extract_table(action.element)
+                    success = extracted_table is not None
+                    result = extracted_table or "Table extraction failed"
+                    
+                elif action.method == "list" or action.method == "multiple":
+                    if not action.element:
+                        return ActionResult(
+                            action_id=action.id,
+                            success=False,
+                            error="Extract action with list/multiple method requires an element selector",
+                            timestamp=datetime.utcnow()
+                        )
+                    extracted_items = await self.browser_controller.extract_multiple(action.element, action.method)
+                    success = extracted_items is not None
+                    result = extracted_items or "Multiple extraction failed"
+                    
+                elif action.method == "links":
+                    extracted_links = await self.browser_controller.extract_links(action.element)
+                    success = extracted_links is not None
+                    result = extracted_links or "Links extraction failed"
+                    
+                elif action.method == "images":
+                    extracted_images = await self.browser_controller.extract_images(action.element)
+                    success = extracted_images is not None
+                    result = extracted_images or "Images extraction failed"
+                    
+                elif action.method == "html_content":
+                    if not action.element:
+                        return ActionResult(
+                            action_id=action.id,
+                            success=False,
+                            error="Extract action with html_content method requires an element selector",
+                            timestamp=datetime.utcnow()
+                        )
+                    extracted_html = await self.browser_controller.extract_html(action.element)
+                    success = extracted_html is not None
+                    result = extracted_html or "HTML content extraction failed"
+                        
+                else:
+                    return ActionResult(
+                        action_id=action.id,
+                        success=False,
+                        error=f"Unsupported extraction method: {action.method}",
+                        timestamp=datetime.utcnow()
+                    )
+            
+            elif action.type == "fill_form" or action.type == "submit_form":
+                # Handle form actions
+                from models import FormActionType
+                # Map action.type to FormActionType if needed
+                if hasattr(action, 'form_action_type'):
+                    form_action_type = action.form_action_type
+                else:
+                    # For direct form actions in the main action system
+                    if action.type == "fill_form":
+                        form_action_type = "fill"
+                    elif action.type == "submit_form":
+                        form_action_type = "submit"
+                    else:
+                        form_action_type = action.type
+                    
+                if form_action_type == "fill":
+                    if not action.element or not hasattr(action, 'field_data'):
+                        return ActionResult(
+                            action_id=action.id,
+                            success=False,
+                            error="Fill form action requires form selector and field data",
+                            timestamp=datetime.utcnow()
+                        )
+                    
+                    success = await self.browser_controller.fill_form(
+                        action.element, 
+                        getattr(action, 'field_data', {}) or {}
+                    )
+                    result = f"Form filling {'succeeded' if success else 'failed'}"
+                    
+                elif form_action_type == "submit":
+                    if not action.element:
+                        return ActionResult(
+                            action_id=action.id,
+                            success=False,
+                            error="Submit form action requires form selector",
+                            timestamp=datetime.utcnow()
+                        )
+                    
+                    success = await self.browser_controller.submit_form(action.element)
+                    result = f"Form submission {'succeeded' if success else 'failed'}"
+                    
+                else:
+                    return ActionResult(
+                        action_id=action.id,
+                        success=False,
+                        error=f"Unsupported form action type: {form_action_type}",
+                        timestamp=datetime.utcnow()
+                    )
+            
+            elif action.type == "fill_form":
+                if not action.element or not hasattr(action, 'field_data'):
+                    return ActionResult(
+                        action_id=action.id,
+                        success=False,
+                        error="Fill form action requires form selector and field data",
+                        timestamp=datetime.utcnow()
+                    )
+                
+                success = await self.browser_controller.fill_form(
+                    action.element, 
+                    getattr(action, 'field_data', {}) or {}
+                )
+                result = f"Form filling {'succeeded' if success else 'failed'}"
+                
+            elif action.type == "submit_form":
                 if not action.element:
                     return ActionResult(
                         action_id=action.id,
                         success=False,
-                        error="Extract action requires an element selector",
+                        error="Submit form action requires form selector",
                         timestamp=datetime.utcnow()
                     )
                 
-                extracted_text = await self.browser_controller.extract_text(action.element)
-                success = extracted_text is not None
-                result = extracted_text or "Extraction failed"
+                success = await self.browser_controller.submit_form(action.element)
+                result = f"Form submission {'succeeded' if success else 'failed'}"
+                
+            elif action.type == "detect_form":
+                if not action.element:
+                    return ActionResult(
+                        action_id=action.id,
+                        success=False,
+                        error="Detect form action requires form selector",
+                        timestamp=datetime.utcnow()
+                    )
+                
+                detected_fields = await self.browser_controller.detect_form_fields(action.element)
+                success = detected_fields is not None
+                result = detected_fields if success else "Form detection failed"
+                
+            elif action.type == "validate_form":
+                # For now, just a placeholder - form validation could involve checking required fields
+                if not action.element:
+                    return ActionResult(
+                        action_id=action.id,
+                        success=False,
+                        error="Validate form action requires form selector",
+                        timestamp=datetime.utcnow()
+                    )
+                
+                form_values = await self.browser_controller.get_form_values(action.element)
+                if form_values:
+                    # Simple validation - check for empty required fields
+                    # In a real implementation, we'd have more sophisticated validation
+                    result = {"valid": True, "errors": []}
+                    success = True
+                else:
+                    result = {"valid": False, "errors": ["Could not retrieve form values for validation"]}
+                    success = False
                 
             elif action.type == "screenshot":
                 screenshot_path = action.value or f"screenshots/action_{action.id}.png"

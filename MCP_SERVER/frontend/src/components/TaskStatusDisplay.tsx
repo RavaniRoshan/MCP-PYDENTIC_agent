@@ -9,6 +9,7 @@ import {
   InformationCircleIcon,
   ArrowPathIcon 
 } from '@heroicons/react/24/outline';
+import { formatDate, formatTime } from '../utils/dateUtils';
 
 /**
  * @interface TaskStatusDisplayProps
@@ -89,7 +90,7 @@ const TaskStatusDisplay: React.FC<TaskStatusDisplayProps> = ({ task }) => {
             )}
           </div>
           <div className="text-xs text-gray-500">
-            {task.started_at ? new Date(task.started_at).toLocaleTimeString() : 'Just now'}
+            {task.started_at ? formatTime(new Date(task.started_at)) : 'Just now'}
           </div>
         </div>
         <div className="mt-1 text-sm font-medium text-gray-900">

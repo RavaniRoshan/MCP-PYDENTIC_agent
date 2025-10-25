@@ -11,6 +11,8 @@ import {
   LightBulbIcon
 } from '@heroicons/react/24/outline';
 import TaskStatusDisplay from './TaskStatusDisplay';
+import { taskApi } from '../services/api';
+import { convertApiTaskResponse } from '../types';
 
 /**
  * @component ChatInterface
@@ -57,10 +59,23 @@ const ChatInterface: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Create a new task object (in a real app, this would be sent to the backend)
-      const newTask: TaskResponse = {
-        task_id: `task_${Date.now()}`,
-        status: 'processing',
+      // Send the task to the backend API
+      const apiResponse = await taskApi.createTask(input);
+      
+      // Convert the API response to our internal format
+      const task = convertApiTaskResponse(apiResponse);
+      
+      // Add the task to context
+      addTask(task);
+      
+      setInput('');
+    } catch (error) {
+      console.error('Error creating task:', error);
+      
+      // Create a mock error task to show in the UI
+      const errorTask: TaskResponse = {
+        task_id: `task_error_${Date.now()}`,
+        status: 'failed',
         request: {
           id: `req_${Date.now()}`,
           user_prompt: {
@@ -73,20 +88,12 @@ const ChatInterface: React.FC = () => {
           created_at: new Date()
         },
         results: [],
+        error: 'Failed to create task',
         started_at: new Date(),
         execution_time: 0
       };
-
-      // Add the task to context (this simulates sending to the backend)
-      addTask(newTask);
       
-      // In a real app, you would send this to the backend API
-      // const response = await api.createTask(input);
-      // addTask(response);
-      
-      setInput('');
-    } catch (error) {
-      console.error('Error creating task:', error);
+      addTask(errorTask);
     } finally {
       setIsLoading(false);
     }

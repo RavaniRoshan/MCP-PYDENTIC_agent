@@ -103,7 +103,11 @@ const AutomationSuggestions: React.FC = () => {
   ];
 
   const allSuggestions = categories.flatMap(cat => 
+<<<<<<< HEAD
+    cat.suggestions.map(s => ({ text: s, category: cat.id }))
+=======
     cat.suggestions.map(s => ({ name: s, category: cat.id }))
+>>>>>>> f37de6ae00bbacc9c5649a206245e6bde2543ecf
   );
 
   const filteredSuggestions = activeCategory === 'all' 
@@ -170,12 +174,16 @@ const AutomationSuggestions: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredSuggestions.map((suggestion, index) => {
-              const category = categories.find(cat => cat.id === (suggestion as any).category);
+              const category = categories.find(cat => cat.id === suggestion.category);
               return (
                 <div 
                   key={index} 
                   className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+<<<<<<< HEAD
+                  onClick={() => handleSuggestionClick(suggestion.text)}
+=======
                   onClick={() => handleSuggestionClick(suggestion)}
+>>>>>>> f37de6ae00bbacc9c5649a206245e6bde2543ecf
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -186,7 +194,11 @@ const AutomationSuggestions: React.FC = () => {
                         </span>
                       </div>
                       <h3 className="mt-2 text-lg font-medium text-gray-900">
+<<<<<<< HEAD
+                        {suggestion.text}
+=======
                         {suggestion.name}
+>>>>>>> f37de6ae00bbacc9c5649a206245e6bde2543ecf
                       </h3>
                     </div>
                     <ArrowRightIcon className="h-5 w-5 text-gray-400" />

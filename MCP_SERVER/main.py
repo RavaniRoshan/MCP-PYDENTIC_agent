@@ -7,6 +7,10 @@ import asyncio
 from core.config import settings
 from models import UserPrompt, TaskRequest, TaskResponse, BrowserAction, TaskExecutionPlan
 from agents.automateai_agent import AutomateAIAgent
+from social_media.service import router as social_media_router
+from ai_services.action_execution import ActionExecutionFramework
+from core.playwright_controller import PlaywrightBrowserController
+from core.safety import SafetyValidator, SafetyConfirmation
 
 # Create the FastAPI app
 app = FastAPI(
@@ -27,6 +31,24 @@ app.add_middleware(
 # In-memory storage for tasks (in production, use a proper database)
 active_tasks: Dict[str, TaskResponse] = {}
 
+# Global instances of services
+browser_controller = None
+action_framework = None
+
+@app.on_event("startup")
+async def startup_event():
+    """
+    Initialize services on startup.
+    """
+    global browser_controller, action_framework
+    
+    # Initialize browser controller
+    browser_controller = PlaywrightBrowserController()
+    await browser_controller.initialize()
+    
+    # Initialize action execution framework
+    action_framework = ActionExecutionFramework(browser_controller)
+
 @app.get("/")
 async def root():
     """
@@ -45,6 +67,9 @@ async def handle_prompt(user_prompt: UserPrompt):
     Returns:
         TaskResponse: The response to the user's prompt.
     """
+    if not action_framework:
+        raise HTTPException(status_code=500, detail="Action framework not initialized")
+    
     task_id = str(uuid.uuid4())
     
     # Create a task request
@@ -66,11 +91,11 @@ async def handle_prompt(user_prompt: UserPrompt):
     # Store the task
     active_tasks[task_id] = task_response
     
-    # Create and run the agent in the background
-    agent = AutomateAIAgent()
-    # This would normally be run in the background
-    # For now, we'll just update the status
-    task_response.status = "executing"
+    # Process the user request using the real action execution framework
+    task_response = await action_framework.process_user_request(user_prompt)
+    
+    # Update the active tasks with the updated response
+    active_tasks[task_id] = task_response
     
     return task_response
 
@@ -85,11 +110,15 @@ async def execute_action(action: BrowserAction):
     Returns:
         TaskResponse: The response to the action.
     """
-    # This endpoint would execute a single action
-    # In a real implementation, this would interact with the browser
+    if not action_framework:
+        raise HTTPException(status_code=500, detail="Action framework not initialized")
+    
+    # Execute the single action using the framework
+    result = await action_framework.execute_action(action)
+    
     return TaskResponse(
         task_id=action.id,
-        status="executing",
+        status="completed" if result.success else "failed",
         request=TaskRequest(
             id=action.id,
             user_prompt=UserPrompt(
@@ -99,7 +128,7 @@ async def execute_action(action: BrowserAction):
             target_urls=[],
             expected_outputs=[]
         ),
-        results=[]
+        results=[result] if result else []
     )
 
 @app.get("/observe", response_model=Dict)
@@ -110,13 +139,18 @@ async def observe_browser():
     Returns:
         Dict: A dictionary representing the current browser state.
     """
-    # This would return the current browser state
-    # For now, returning a placeholder
+    if not browser_controller:
+        raise HTTPException(status_code=500, detail="Browser controller not initialized")
+    
+    # Get the actual browser state
+    browser_state = await browser_controller.get_page_state()
+    
     return {
-        "url": "about:blank",
-        "title": "New Tab",
-        "dom_content": "<html><head></head><body></body></html>",
-        "timestamp": "2023-01-01T00:00:00Z"
+        "url": browser_state.url,
+        "title": browser_state.title,
+        "dom_content": browser_state.dom_content,
+        "viewport_size": browser_state.viewport_size,
+        "timestamp": browser_state.timestamp.isoformat() if browser_state.timestamp else None
     }
 
 @app.get("/tasks/{task_id}", response_model=TaskResponse)
@@ -144,6 +178,9 @@ async def get_all_tasks():
         Dict[str, TaskResponse]: A dictionary of all active tasks.
     """
     return active_tasks
+
+# Include social media router
+app.include_router(social_media_router)
 
 def main():
     import uvicorn

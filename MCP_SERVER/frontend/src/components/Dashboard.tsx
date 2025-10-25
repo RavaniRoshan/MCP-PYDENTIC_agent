@@ -11,6 +11,7 @@ import {
   ArrowTrendingUpIcon,
   CpuChipIcon
 } from '@heroicons/react/24/outline';
+import { parseAPIDate, formatDate } from '../utils/dateUtils';
 
 /**
  * @component Dashboard
@@ -31,7 +32,7 @@ const Dashboard: React.FC = () => {
   const now = new Date();
   const filteredTasks = tasks.filter(task => {
     if (!task.started_at) return true;
-    const taskDate = new Date(task.started_at);
+    const taskDate = parseAPIDate(task.started_at);
     
     switch (timeRange) {
       case 'day':
@@ -59,7 +60,7 @@ const Dashboard: React.FC = () => {
 
   // Recent tasks
   const recentTasks = [...tasks]
-    .sort((a, b) => new Date(b.started_at || 0).getTime() - new Date(a.started_at || 0).getTime())
+    .sort((a, b) => parseAPIDate(b.started_at || new Date(0)).getTime() - parseAPIDate(a.started_at || new Date(0)).getTime())
     .slice(0, 5);
 
   return (
@@ -227,7 +228,7 @@ const Dashboard: React.FC = () => {
                             {task.request.user_prompt.prompt.substring(0, 50)}...
                           </p>
                           <p className="text-sm text-gray-500">
-                            {task.status} • {task.started_at ? new Date(task.started_at).toLocaleDateString() : 'Just now'}
+                            {task.status} • {task.started_at ? formatDate(parseAPIDate(task.started_at)) : 'Just now'}
                           </p>
                         </div>
                         <div>

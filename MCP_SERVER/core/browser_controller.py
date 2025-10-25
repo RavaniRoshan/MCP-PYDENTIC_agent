@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, List
-from models import BrowserAction, ElementSelector, BrowserState
+from models import BrowserAction, ElementSelector, BrowserState, FormField
 
 
 class BrowserControllerInterface(ABC):
@@ -29,6 +29,61 @@ class BrowserControllerInterface(ABC):
         pass
     
     @abstractmethod
+    async def extract_multiple(self, selector: ElementSelector, method: str = "text_content") -> Optional[List[Dict[str, Any]]]:
+        """Extract multiple elements based on a selector"""
+        pass
+    
+    @abstractmethod
+    async def extract_attribute(self, selector: ElementSelector, attr_name: str) -> Optional[str]:
+        """Extract a specific attribute from an element"""
+        pass
+    
+    @abstractmethod
+    async def extract_table(self, selector: ElementSelector) -> Optional[List[Dict[str, str]]]:
+        """Extract table data from an element"""
+        pass
+    
+    @abstractmethod
+    async def extract_links(self, selector: ElementSelector = None) -> Optional[List[Dict[str, str]]]:
+        """Extract all links from the page or within a specific element"""
+        pass
+    
+    @abstractmethod
+    async def extract_images(self, selector: ElementSelector = None) -> Optional[List[Dict[str, str]]]:
+        """Extract all images from the page or within a specific element"""
+        pass
+    
+    @abstractmethod
+    async def extract_html(self, selector: ElementSelector) -> Optional[str]:
+        """Extract HTML content from an element"""
+        pass
+    
+    @abstractmethod
+    async def detect_form_fields(self, form_selector: ElementSelector) -> Optional[List[FormField]]:
+        """Detect and return all fields in a form"""
+        pass
+    
+    @abstractmethod
+    async def fill_form_field(self, field_selector: ElementSelector, value: str) -> bool:
+        """Fill a single form field with a value"""
+        pass
+    
+    @abstractmethod
+    async def fill_form(self, form_selector: ElementSelector, field_values: Dict[str, str]) -> bool:
+        """Fill all fields in a form with provided values"""
+        pass
+    
+    @abstractmethod
+    async def submit_form(self, form_selector: ElementSelector) -> bool:
+        """Submit a form"""
+        pass
+    
+    @abstractmethod
+    async def get_form_values(self, form_selector: ElementSelector) -> Optional[Dict[str, str]]:
+        """Extract all current values from form fields"""
+        pass
+    
+    @abstractmethod
     async def get_page_state(self) -> BrowserState:
         """Get the current state of the browser"""
         pass
@@ -46,6 +101,13 @@ class BrowserControllerInterface(ABC):
     @abstractmethod
     async def close(self):
         """Close the browser"""
+        pass
+    
+    def get_raw_page(self):
+        """
+        Get the raw page object for direct access (e.g., Playwright page).
+        This allows the compatibility layer to run JavaScript directly.
+        """
         pass
 
 
@@ -80,6 +142,78 @@ class MockBrowserController(BrowserControllerInterface):
         print(f"Mock text extraction from {selector.value}")
         return "Mock extracted text"
     
+    async def extract_multiple(self, selector: ElementSelector, method: str = "text_content") -> Optional[List[Dict[str, Any]]]:
+        """Extract multiple elements based on a selector"""
+        print(f"Mock multiple extraction from {selector.value} using method {method}")
+        return [{"text": "Mock item 1"}, {"text": "Mock item 2"}]
+    
+    async def extract_attribute(self, selector: ElementSelector, attr_name: str) -> Optional[str]:
+        """Extract a specific attribute from an element"""
+        print(f"Mock attribute '{attr_name}' extraction from {selector.value}")
+        return f"Mock {attr_name} value"
+    
+    async def extract_table(self, selector: ElementSelector) -> Optional[List[Dict[str, str]]]:
+        """Extract table data from an element"""
+        print(f"Mock table extraction from {selector.value}")
+        return [{"header1": "value1", "header2": "value2"}, {"header1": "value3", "header2": "value4"}]
+    
+    async def extract_links(self, selector: ElementSelector = None) -> Optional[List[Dict[str, str]]]:
+        """Extract all links from the page or within a specific element"""
+        print(f"Mock links extraction")
+        return [{"text": "Link 1", "href": "https://example.com/1"}, {"text": "Link 2", "href": "https://example.com/2"}]
+    
+    async def extract_images(self, selector: ElementSelector = None) -> Optional[List[Dict[str, str]]]:
+        """Extract all images from the page or within a specific element"""
+        print(f"Mock images extraction")
+        return [{"alt": "Image 1", "src": "https://example.com/image1.jpg"}, {"alt": "Image 2", "src": "https://example.com/image2.jpg"}]
+    
+    async def extract_html(self, selector: ElementSelector) -> Optional[str]:
+        """Extract HTML content from an element"""
+        print(f"Mock HTML extraction from {selector.value}")
+        return f"<div>{selector.value}</div>"
+    
+    async def detect_form_fields(self, form_selector: ElementSelector) -> Optional[List[FormField]]:
+        """Detect and return all fields in a form"""
+        print(f"Mock detecting form fields in {form_selector.value}")
+        return [
+            FormField(
+                name="name",
+                type="text",
+                selector=ElementSelector(type="css", value="input[name='name']"),
+                required=True,
+                label="Name",
+                placeholder="Enter your name"
+            ),
+            FormField(
+                name="email",
+                type="email",
+                selector=ElementSelector(type="css", value="input[name='email']"),
+                required=True,
+                label="Email",
+                placeholder="Enter your email"
+            )
+        ]
+    
+    async def fill_form_field(self, field_selector: ElementSelector, value: str) -> bool:
+        """Fill a single form field with a value"""
+        print(f"Mock filling form field {field_selector.value} with '{value}'")
+        return True
+    
+    async def fill_form(self, form_selector: ElementSelector, field_values: Dict[str, str]) -> bool:
+        """Fill all fields in a form with provided values"""
+        print(f"Mock filling form {form_selector.value} with values: {field_values}")
+        return True
+    
+    async def submit_form(self, form_selector: ElementSelector) -> bool:
+        """Submit a form"""
+        print(f"Mock submitting form {form_selector.value}")
+        return True
+    
+    async def get_form_values(self, form_selector: ElementSelector) -> Optional[Dict[str, str]]:
+        """Extract all current values from form fields"""
+        print(f"Mock getting form values from {form_selector.value}")
+        return {"name": "Test Name", "email": "test@example.com"}
+    
     async def get_page_state(self) -> BrowserState:
         """Get the current state of the browser"""
         return BrowserState(
@@ -101,6 +235,19 @@ class MockBrowserController(BrowserControllerInterface):
     async def close(self):
         """Close the browser"""
         print("Mock browser closed")
+    
+    def get_raw_page(self):
+        """
+        Get the raw page object for direct access (e.g., Playwright page).
+        This allows the compatibility layer to run JavaScript directly.
+        """
+        # For mock, return a mock page object
+        class MockPage:
+            async def evaluate(self, js_code):
+                print(f"Mock evaluating JS: {js_code}")
+                return "mock_result"
+        
+        return MockPage()
 
 
 # Import the Playwright implementation if available

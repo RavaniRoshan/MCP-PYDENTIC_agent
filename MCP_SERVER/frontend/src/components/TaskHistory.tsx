@@ -10,6 +10,7 @@ import {
   ArrowPathIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
+import { parseAPIDate, formatDate } from '../utils/dateUtils';
 
 /**
  * @component TaskHistory
@@ -37,7 +38,7 @@ const TaskHistory: React.FC = () => {
     
     // Date filter
     if (dateFilter !== 'all' && task.started_at) {
-      const taskDate = new Date(task.started_at);
+      const taskDate = parseAPIDate(task.started_at);
       const now = new Date();
       
       switch (dateFilter) {
@@ -61,8 +62,8 @@ const TaskHistory: React.FC = () => {
 
   // Sort tasks by start date (newest first)
   const sortedTasks = [...filteredTasks].sort((a, b) => {
-    const dateA = a.started_at ? new Date(a.started_at).getTime() : 0;
-    const dateB = b.started_at ? new Date(b.started_at).getTime() : 0;
+    const dateA = a.started_at ? parseAPIDate(a.started_at).getTime() : 0;
+    const dateB = b.started_at ? parseAPIDate(b.started_at).getTime() : 0;
     return dateB - dateA;
   });
 
@@ -219,7 +220,7 @@ const TaskHistory: React.FC = () => {
                       )}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {task.started_at ? new Date(task.started_at).toLocaleString() : 'N/A'}
+                      {task.started_at ? formatDate(parseAPIDate(task.started_at)) : 'N/A'}
                     </div>
                   </div>
                   

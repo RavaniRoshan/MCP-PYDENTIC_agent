@@ -5,9 +5,11 @@ from typing import Dict, Any, List, Optional, Tuple
 from pydantic import BaseModel, Field
 from bs4 import BeautifulSoup
 import re
+import google.generativeai as genai
 
 from models import BrowserState, ElementSelector, ActionType
 from core.browser_controller import BrowserControllerInterface
+from core.config import settings
 
 
 class ElementInfo(BaseModel):
@@ -301,3 +303,67 @@ class BrowserStateObserver:
             self.logger.error(f"Error taking element screenshot: {e}")
         
         return None
+
+    async def analyze_with_ai(self, user_query: str = "") -> Optional[Dict[str, Any]]:
+        """
+        Analyze the current browser state using AI.
+
+        Args:
+            user_query (str): An optional query from the user about the current page.
+
+        Returns:
+            Optional[Dict[str, Any]]: AI analysis of the browser state.
+        """
+        try:
+            if not settings.gemini_api_key:
+                self.logger.warning("No Gemini API key configured for AI analysis")
+                return None
+            
+            # Get the current browser state
+            observation = await self.observe_state()
+            if not observation.success:
+                self.logger.error("Failed to observe browser state for AI analysis")
+                return None
+            
+            # Configure the API key
+            genai.configure(api_key=settings.gemini_api_key)
+            
+            # Initialize the model
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            
+            # Prepare the prompt for AI analysis
+            if user_query:
+                prompt = f"""
+                A user has the following query: '{user_query}'
+                
+                Current page information:
+                - URL: {observation.browser_state.url}
+                - Title: {observation.browser_state.title}
+                - Content: {observation.browser_state.dom_content[:3000]}...
+                
+                Please analyze the page content and provide a helpful response to the user's query.
+                """
+            else:
+                prompt = f"""
+                Analyze the following web page content:
+                - URL: {observation.browser_state.url}
+                - Title: {observation.browser_state.title}
+                - Content: {observation.browser_state.dom_content[:3000]}...
+                
+                Please provide a summary of the page content, identify key elements,
+                and suggest potential actions that could be taken on this page.
+                """
+            
+            # Get AI response
+            response = await model.generate_content_async(prompt)
+            
+            if response and response.text:
+                return {
+                    "analysis": response.text,
+                    "url": observation.browser_state.url,
+                    "title": observation.browser_state.title,
+                    "element_count": len(observation.elements)
+                }
+        except Exception as e:
+            self.logger.error(f"Error in AI analysis: {e}")
+            return None

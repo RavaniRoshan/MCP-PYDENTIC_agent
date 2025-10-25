@@ -10,6 +10,7 @@ import TaskHistory from './components/TaskHistory';
 import Settings from './components/Settings';
 import AutomationSuggestions from './components/AutomationSuggestions';
 import TaskScheduler from './components/TaskScheduler';
+import SocialMediaScheduler from './components/SocialMediaScheduler';
 import './App.css';
 
 /**
@@ -30,6 +31,7 @@ function App() {
               <Route path="/scheduler" element={<TaskScheduler />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/suggestions" element={<AutomationSuggestions />} />
+              <Route path="/social-media" element={<SocialMediaScheduler />} />
             </Routes>
           </Layout>
         </Router>

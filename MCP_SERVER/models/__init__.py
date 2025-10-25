@@ -8,10 +8,28 @@ from .browser_action import (
     BrowserAction, 
     ClickAction, 
     TypeAction, 
-    NavigateAction
+    NavigateAction,
+    ExtractAction,
+    ExtractMethod,
+    ExtractionFormat,
+    FormActionModel
 )
 from .state import BrowserState, TaskExecutionPlan, ActionResult
 from .response import TaskResponse, ActionResponse, ErrorResponse
+from .extraction import (
+    ExtractionRule,
+    ExtractionPattern,
+    ExtractedData,
+    ScrapingTask,
+    ScrapingResult
+)
+from .browser_action import (
+    FormField,
+    FormDefinition,
+    FormData,
+    FormActionType,
+    FormAction
+)
 
 __all__ = [
     # User Input Models
@@ -26,6 +44,10 @@ __all__ = [
     "ClickAction", 
     "TypeAction",
     "NavigateAction",
+    "ExtractAction",
+    "ExtractMethod",
+    "ExtractionFormat",
+    "FormActionModel",
     
     # State Models
     "BrowserState",
@@ -35,5 +57,17 @@ __all__ = [
     # Response Models
     "TaskResponse",
     "ActionResponse",
-    "ErrorResponse"
+    "ErrorResponse",
+    
+    # Extraction Models
+    "ExtractionRule",
+    "ExtractionPattern",
+    "ExtractedData",
+    "ScrapingTask",
+    "ScrapingResult",
+    "FormField",
+    "FormDefinition",
+    "FormData",
+    "FormActionType",
+    "FormAction"
 ]

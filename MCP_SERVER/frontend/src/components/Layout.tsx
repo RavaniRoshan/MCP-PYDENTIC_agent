@@ -36,6 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Chat', href: '/', icon: ChatBubbleLeftRightIcon },
     { name: 'Dashboard', href: '/dashboard', icon: ChartBarIcon },
     { name: 'History', href: '/history', icon: ClockIcon },
+    { name: 'Social Media', href: '/social-media', icon: ChatBubbleLeftRightIcon },
     { name: 'Scheduler', href: '/scheduler', icon: CalendarIcon },
     { name: 'Suggestions', href: '/suggestions', icon: LightBulbIcon },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
